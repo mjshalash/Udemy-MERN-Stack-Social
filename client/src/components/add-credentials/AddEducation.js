@@ -36,9 +36,9 @@ class AddEducation extends Component {
     e.preventDefault();
 
     const eduData = {
-      school: this.state.company,
-      degree: this.state.title,
-      fieldofstudy: this.state.location,
+      school: this.state.school,
+      degree: this.state.degree,
+      fieldofstudy: this.state.fieldofstudy,
       from: this.state.from,
       to: this.state.to,
       current: this.state.current,
@@ -70,9 +70,9 @@ class AddEducation extends Component {
               <Link to="/dashboard" className="btn btn-light">
                 Go Back
               </Link>
-              <h1 className="display-4 text-center"> Add Education </h1>
+              <h1 className="display-4 text-center">Add Education</h1>
               <p className="lead text-center">
-                Add any school, bootcamp, etc. that you have attended
+                Add any school, bootcamp, etc that you have attended
               </p>
               <small className="d-block pb-3">* = required fields</small>
               <form onSubmit={this.onSubmit}>
@@ -125,7 +125,7 @@ class AddEducation extends Component {
                     id="current"
                   />
                   <label htmlFor="current" className="form-check-label">
-                    Current Program
+                    Current Job
                   </label>
                 </div>
                 <TextAreaFieldGroup

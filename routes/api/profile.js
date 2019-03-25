@@ -3,21 +3,20 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const passport = require("passport");
 
-//Load Validation
+// Load Validation
 const validateProfileInput = require("../../validation/profile");
 const validateExperienceInput = require("../../validation/experience");
-const validateEducationInput = require("../../validation/education.js");
+const validateEducationInput = require("../../validation/education");
 
 // Load Profile Model
 const Profile = require("../../models/Profile");
-
-//Load User Model
+// Load User Model
 const User = require("../../models/User");
 
 // @route   GET api/profile/test
 // @desc    Tests profile route
 // @access  Public
-router.get("/test", (req, res) => res.json({ msg: "Profiles Works" }));
+router.get("/test", (req, res) => res.json({ msg: "Profile Works" }));
 
 // @route   GET api/profile
 // @desc    Get current users profile
@@ -41,16 +40,18 @@ router.get(
   }
 );
 
-// @route GET api/profile/all
-// @desc Get all profiles
-// @access Public
+// @route   GET api/profile/all
+// @desc    Get all profiles
+// @access  Public
 router.get("/all", (req, res) => {
+  const errors = {};
+
   Profile.find()
     .populate("user", ["name", "avatar"])
     .then(profiles => {
       if (!profiles) {
         errors.noprofile = "There are no profiles";
-        return res.status(404).json();
+        return res.status(404).json(errors);
       }
 
       res.json(profiles);
@@ -61,7 +62,10 @@ router.get("/all", (req, res) => {
 // @route   GET api/profile/handle/:handle
 // @desc    Get profile by handle
 // @access  Public
+
 router.get("/handle/:handle", (req, res) => {
+  const errors = {};
+
   Profile.findOne({ handle: req.params.handle })
     .populate("user", ["name", "avatar"])
     .then(profile => {
@@ -76,19 +80,25 @@ router.get("/handle/:handle", (req, res) => {
 });
 
 // @route   GET api/profile/user/:user_id
-// @desc    Get profile by User ID
+// @desc    Get profile by user ID
 // @access  Public
+
 router.get("/user/:user_id", (req, res) => {
-  Profile.findOne({ handle: request.params.user_id })
+  const errors = {};
+
+  Profile.findOne({ user: req.params.user_id })
     .populate("user", ["name", "avatar"])
     .then(profile => {
       if (!profile) {
-        res.status(404).json({ profile: "There is no profile for this user" });
+        errors.noprofile = "There is no profile for this user";
+        res.status(404).json(errors);
       }
 
       res.json(profile);
     })
-    .catch(err => res.status(404).json(err));
+    .catch(err =>
+      res.status(404).json({ profile: "There is no profile for this user" })
+    );
 });
 
 // @route   POST api/profile
@@ -139,7 +149,7 @@ router.post(
           { new: true }
         ).then(profile => res.json(profile));
       } else {
-        // Create profile if does not alreadyt exist
+        // Create
 
         // Check if handle exists
         Profile.findOne({ handle: profileFields.handle }).then(profile => {
@@ -190,8 +200,8 @@ router.post(
   }
 );
 
-// @route   POST api/profile/experience
-// @desc    Add experience to profile
+// @route   POST api/profile/education
+// @desc    Add education to profile
 // @access  Private
 router.post(
   "/education",
@@ -225,7 +235,7 @@ router.post(
 );
 
 // @route   DELETE api/profile/experience/:exp_id
-// @desc    DELETE experience from profile
+// @desc    Delete experience from profile
 // @access  Private
 router.delete(
   "/experience/:exp_id",
@@ -233,7 +243,7 @@ router.delete(
   (req, res) => {
     Profile.findOne({ user: req.user.id })
       .then(profile => {
-        //Get remove index
+        // Get remove index
         const removeIndex = profile.experience
           .map(item => item.id)
           .indexOf(req.params.exp_id);
@@ -241,7 +251,7 @@ router.delete(
         // Splice out of array
         profile.experience.splice(removeIndex, 1);
 
-        //Save
+        // Save
         profile.save().then(profile => res.json(profile));
       })
       .catch(err => res.status(404).json(err));
@@ -249,7 +259,7 @@ router.delete(
 );
 
 // @route   DELETE api/profile/education/:edu_id
-// @desc    DELETE education from profile
+// @desc    Delete education from profile
 // @access  Private
 router.delete(
   "/education/:edu_id",
@@ -257,7 +267,7 @@ router.delete(
   (req, res) => {
     Profile.findOne({ user: req.user.id })
       .then(profile => {
-        //Get remove index
+        // Get remove index
         const removeIndex = profile.education
           .map(item => item.id)
           .indexOf(req.params.edu_id);
@@ -265,7 +275,7 @@ router.delete(
         // Splice out of array
         profile.education.splice(removeIndex, 1);
 
-        //Save
+        // Save
         profile.save().then(profile => res.json(profile));
       })
       .catch(err => res.status(404).json(err));
@@ -273,7 +283,7 @@ router.delete(
 );
 
 // @route   DELETE api/profile
-// @desc    DELETE user and profile
+// @desc    Delete user and profile
 // @access  Private
 router.delete(
   "/",
